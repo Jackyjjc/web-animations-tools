@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<script src="web-animations.js"></script>
+<link rel="import" href="../../bower_components/"
+
+<style>
+</style>
+
+<input id="test_button" type="button" value="+1">
+<wat-keyframe-editor></wat-keyframe-editor>
+<script>
+    var b = document.querySelector("#test_button");
+    var timeItem = new Animation(b, [{transform:"scale(1)"},{transform:"scale(1.5)"}, {transform:"scale(1)"}], 0.2);
+    
+    b.onclick = function(e) {
+        document.timeline.play(timeItem);
+    }
+</script>
