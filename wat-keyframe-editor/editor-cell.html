@@ -1,7 +1,7 @@
 <!--TODO: standardize the path with the other controls-->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="editor-cell" attribute="content">
+<polymer-element name="editor-cell" attribute="column row content">
     <template>
         <style>
             #cell {
@@ -10,26 +10,36 @@
             input, input:focus{
                 border : none;
                 outline: none;
+                width: 100%;
             }
         </style>
-        <div id="cell" on-click="{{setFocus}}"><input id="cell_input" type="text" value="{{content}}"></div>
+        <div id="cell"><input id="cellInput" type="text" value="{{content}}" on-focus="{{gainFocus}}" on-blur="{{loseFocus}}"></div>
     </template>
     <script>
         Polymer('editor-cell', {
             content: null,
-            select:  false,
-            setFocus: function() {
-                document.timeline.play(new Animation(this.$.cell, [{transform:"scale(1)"},{transform:"scale(1.1)"}, {transform:"scale(1)"}], 0.1));
-                this.fire("editor-cell-deselect");
-                this.select = true;
+            row:1,
+            column:1,
+            updated: false;
+            contentChanged: function(oldValue, newValue) {
+                this.updated = true;
             },
-            selectChanged: function () {
-                if(this.select) {
-                    this.$.cell.style.border = "1px solid blue";
-                    this.$.cell_input.select();
-                } else {
-                    this.$.cell.style.border = "1px solid black";
-                }
+            gainFocus: function () {
+                //play an animation when selected to be more responsive
+                document.timeline.play(
+                    new Animation(this.$.cell, 
+                                  [{transform:"scale(1)"},
+                                   {transform:"scale(1.1)"}, 
+                                   {transform:"scale(1)"}], 
+                                   0.1)
+                );
+
+                this.$.cell.style.border = "1px solid blue";
+            },
+            loseFocus: function() {
+                this.$.cell.style.border = "1px solid black";
+                this.fire("editor-cell-update", {this.column, this.row, this.content});
+                this.updated = false;
             }
         });
     </script>

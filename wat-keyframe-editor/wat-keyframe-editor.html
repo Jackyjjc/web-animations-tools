@@ -2,67 +2,47 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="editor-cell.html">
 
-<polymer-element name="wat-keyframe-editor" attribute="keyframeEffect">
+<polymer-element name="wat-keyframe-editor" attribute="effect">
 	<template>
 		<style>
-			#grid_container {
-				display: grid;
-				grid-auto-columns: 1fr;
-				grid-auto-rows: 1rf;
+			#container {
+				display: table-row;
 			}
 		</style>
-		<div id="grid_container"></div>
+		<div id="container"></div>
 	</template>
 	<script>
 		Polymer('wat-keyframe-editor', {
 			
-			grids: null,
-			keyframeEffect: null,
+			effect: null,
 
-			created: function () {
-				this.addEventListener("editor-cell-deselect", function(e) {
-					for(var i = 0; i < this.grids.length; i++) {
-						this.grids[i].select = false;
-					}
-				});
-			},
-
-			keyframeEffectChanged: function(oldValue, newValue) {
-				this.update();
+			effectChanged: function(oldValue, newValue) {
+				this.createTable();
 			},
 			
-			update: function() {
-
-				/*create an item and insert it into the grid layout at (row, column)*/
-				var createGridItem = function(row, col, content, container) {
-					
+			createTable: function() {
+				
+				var createGridItem = function(content, col, row) {
+				
 					var item = document.createElement("editor-cell");
-					item.id = "cell_" + row + "_" + col;
-					item.style.gridColumn = col;
-					item.style.gridRow = row;
-
-					if(content !== 0 && !content) {
-						content = "  ";
-					}
-
+					item.column = col;
+					item.row = row;
 					item.content = content;
-					
-					this.grids.push(item);
-					container.appendChild(item);
 
 					return item;
 				}
 
-				var frames = this.keyframeEffect.getFrames();
+				var frames = this.effect.getFrames();
 
-				//the set of properties to display
+				//find out all the properties need to be displayed
+				//because every keyframe may have a different set of properties
 				var found = {offset:true};
 				var properties = [];
 
-				//O(n * m), need to loop through all the frames
-				//for each frame loop through the properties
-				for(var i = 0; i < frames.length; i++) {
-				  	for(var prop in frames[i]) {
+				var i, prop;
+				//O(n * m) where n is #frames and m is #properties
+				for(i = 0; i < frames.length; i++) {
+				  	for(prop in frames[i]) {
 					  
 					 	if(found[prop]) {
 						 	continue;
@@ -73,46 +53,46 @@
 				  	}
 				}
 
-				var frameTable = this.$.grid_container;
+				properties.sort();
+				console.log(properties);
 
+				container = this.$.container;
 
-				var gridItem, row, col;
-				this.grids = [];
-				//create the top left empty cell
-				var gridItem = createGridItem(1, 1, "properties \\ offset");
-				this.grids.push(gridItem);
-				frameTable.appendChild(gridItem);
-
-
-				//create the row headings
-				for(var i = 0; i < properties.length; i++) {
-					row = i + 2;
-					gridItem = createGridItem(row, 1, properties[i]);
-					this.grids.push(gridItem);
-					frameTable.appendChild(gridItem);
-				}
-
+				//first create the topleft empty column
+				var column = document.createElement("div");
+				column.style.display = "table-cell";
+				column.appendChild(createGridItem(null));
 				
-				//create the headings
-				for(var i = 0; i < frames.length; i++) {
-					col = i + 2;
-				 	gridItem = createGridItem(1, col, frames[i].offset);
-				 	this.grids.push(gridItem);
-				 	frameTable.appendChild(gridItem);
+				//insert all the properties into the first column
+				for(i = 0; i < properties.length; i++) {
+					prop = properties[i];
+					column.appendChild(createGridItem(prop));
 				}
 
-				var prop;
-				//fill the rest of the tables
-				for(var i = 0; i < frames.length; i++) {
-					for(var j = 0; j < properties.length; j++) {
-						row = j + 2;
-						col = i + 2;
+				container.appendChild(column);
+
+				var frame;
+				//insert all the frames into the table
+				for(i = 0; i < frames.length; i++) {
+					//each frame is a column grouped by a div
+					frame = frames[i];
+					column = document.createElement("div");
+					column.style.display = "table-cell";
+					column.appendChild(createGridItem(frame.offset));
+
+					for(j = 0; j < properties.length; j++) {
 						prop = properties[j];
-						gridItem = createGridItem(row, col, frames[i][prop]);
-						this.grids.push(gridItem);
-						frameTable.appendChild(gridItem);
+
+						if(frame.hasOwnProperty(prop)) {
+							column.appendChild(createGridItem(frame[prop]));
+						} else {
+							column.appendChild(createGridItem(null));
+						}
 					}
+
+					container.appendChild(column);
 				}
+
 			}
 		});
 	</script>
