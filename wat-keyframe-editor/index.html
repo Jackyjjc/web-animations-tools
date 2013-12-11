@@ -27,17 +27,20 @@ limitations under the License.
   <input id="test_button" type="button" value="+1">
   <wat-keyframe-editor></wat-keyframe-editor>
   <script>
-      var b = document.querySelector("#test_button");
-      var timeItem = new Animation(b, [{transform:"scale(1)", offset:0},{transform:"scale(1.5)", offset:0.5}, {transform:"scale(1)",offset:1}], 2);
+      var b = document.querySelector('#test_button');
+      var timeItem = new Animation(b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], 2);
       
       b.onclick = function(e) {
-          document.timeline.play(timeItem);
+        document.timeline.play(timeItem);
       }
 
   	  document.addEventListener('WebComponentsReady', function() {
-        var editor = document.querySelector("wat-keyframe-editor");
+        var editor = document.querySelector('wat-keyframe-editor');
         editor.effect = timeItem.effect;
       });
-      
   </script>
 </body>

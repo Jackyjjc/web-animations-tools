@@ -1,8 +1,8 @@
 #container {
-  display:table-row;  
+  display: table-row;  
 }
 .column {
-  display:table-cell;
+  display: table-cell;
 }
 .cell {
   border: 1px solid black;
@@ -26,16 +26,16 @@
   cursor: pointer;
 }
 .delete-button {
-  top:1px;
-  right:1px;
+  top: 1px;
+  right: 1px;
 }
 .insert-button {
-  top:1px;
-  right:16px;
+  top: 1px;
+  right: 16px;
 }
 input, input:focus {
-    text-align: center;
-    border : none;
-    outline: none;
-    width: 100%;
+  text-align: center;
+  border: none;
+  outline: none;
+  width: 100%;
 }

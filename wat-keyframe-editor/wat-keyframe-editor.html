@@ -21,60 +21,59 @@ limitations under the License.
 
 <polymer-element name="wat-keyframe-editor" attribute="effect">
   <template>
-    <link rel="stylesheet" href="wat-keyframe-editor.css">
-    
+    <link rel="stylesheet" href="wat-keyframe-editor.css">  
     <div id="container">
   
-      <!-- the left most column with all the property names -->
+      <!-- This is the left most column with all the property names. -->
       <div class="column">
         
-        <!-- top left corner cell -->
-        <input value="" readonly> 
+        <!-- This is the top left corner cell. -->
+        <input readonly> 
 
-        <!-- property headers -->
+        <!-- These are the property headers. -->
         <template repeat="{{prop, i in properties}}">
-          <!-- a header div contains the text and the button -->
+          <!-- This is a header <div> contains the text and the button. -->
           <div class="cell header">
-            <!--index is used to figure out what property the action is 
-            performing on when inserting or deleting-->
+            <!-- The data-index is used to figure out what property 
+            the action is performing on when inserting or deleting. -->
             <input class="header" value="{{prop}}" readonly
                     on-focus="{{gainFocus}}" 
                     on-blur="{{loseFocus}}"
                     on-keyup="{{actionOnProperty}}"
                     data-index="{{i}}"
-            />
+            >
             <a class="button delete-button" 
                 on-click="{{actionOnProperty}}" 
                 data-index="{{i}}" data-action="delete">✖</a>
           </div>
         </template>
 
-        <!--the cell for entering the new property name-->
+        <!-- This is the cell for entering the new property name. -->
         <div class="cell">
-          <input placeholder="add a property"
+          <input placeholder="Add a property"
                   on-focus="{{gainFocus}}" on-blur="{{loseFocus}}"
                   on-keyup="{{actionOnProperty}}">
         </div>
       </div>
 
-      <!-- the columns that display the frames -->
+      <!-- These are the columns that display the frames. -->
       <template repeat="{{frame, i in frames}}">
         <div class="column">
-          <!-- this is the header of the column -->
+          <!-- This is the header of the column. -->
           <div class="cell header">
             <input class="header" value="frame-{{i}}" readonly
                    on-focus="{{gainFocus}}" 
                    on-blur="{{loseFocus}}"
                    on-keyup="{{actionOnFrame}}"
                    data-index="{{i}}"
-            />
+            >
             <a class="button insert-button" on-click="{{actionOnFrame}}"
                 data-index="{{i}}" data-action="insert">✚</a>
             <a class="button delete-button" on-click="{{actionOnFrame}}"
                 data-index="{{i}}" data-action="delete" >✖</a>
           </div>
 
-          <!-- actual cells that allow editing -->
+          <!-- These are the actual cells that allow editing. -->
           <template repeat="{{prop, j in properties}}">
             <div class="cell">
               <input value="{{frame[prop]}}" 
@@ -82,13 +81,12 @@ limitations under the License.
                      on-focus="{{gainFocus}}" 
                      on-blur="{{loseFocus}}"
                      data-column="{{i}}" data-row="{{j}}" 
-              />
+              >
             </div>
           </template>
         </div>
       </template>
     </div>
-  
   </template>
   <script src="wat-keyframe-editor.js"></script>
 </polymer-element>
