@@ -1,0 +1,161 @@
+<!--
+Copyright 2013 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../wat-timeline/wat-timeline-axis.html">
+<link rel="import" href="../wat-timeline/wat-timeline-slider.html">
+
+<polymer-element name="wat-gkeyframe-editor" attribute="timedItem player">
+  <template>
+  <style>
+    :host {
+      display: block;
+    }
+    #container {
+      position: relative;
+      margin-left: 1%;
+      margin-right: 1%;
+    }
+    #keyframe_container {
+      position: relative;
+      margin-top: 6px;
+      width: 100%;
+      height: 100%;
+    }
+    h4 { 
+      width:100%; 
+      text-align:center; 
+      border-bottom: 1px solid #000; 
+      line-height:0.1em; 
+      margin:10px 0 20px; 
+    } 
+    h4 span { 
+      background:#fff; 
+      padding:0 10px; 
+    }
+    .box {
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      border: 1px solid black;
+      padding: 2px;
+    }
+    .property_container {
+      position: relative;
+      width: 100%;
+    }
+  </style>
+  <div id="container">
+    <!-- <wat-timeline-slider id="slider"></wat-timeline-slider> -->
+    <wat-timeline-axis id="axis"></wat-timeline-axis>
+    <div id="keyframe_container">
+    </div>
+  <div>
+  </template>
+  <script>
+    'use strict';
+
+    Polymer('wat-gkeyframe-editor', {
+      timedItem: null,
+      player: null,
+      playerChanged: function() {
+        this.$.slider.player = this.player;
+      },
+      timedItemChanged: function() {
+        // Only accept timedItems that has keyframeEffect.
+        if (!this.timedItem.effect instanceof KeyframeEffect) {
+          return;
+        }
+
+        console.log(this.timedItem.effect);
+
+        // Remove all the children and rebuild the view.
+        var timeline = this.$.keyframe_container;
+        while (timeline.firstChild) {
+          timeline.removeChild(timeline.firstChild);
+        }
+
+        // Get the visual attributes of the timeline container so that
+        // the axis and the slider will have the same width with it.
+        var containerWidth = timeline.clientWidth; 
+        var timespan = Math.max(this.timedItem.endTime - this.timedItem.startTime, 0);
+        var secToPixel = containerWidth / timespan;
+
+        this.$.axis.width = containerWidth;
+        this.$.axis.timespan = timespan;
+        /*this.$.slider.secToPixel = secToPixel;*/
+
+        // If there is no visible animation then show nothing.
+        if (timespan === 0) {
+          return;
+        }
+
+        this.update();
+      },
+      update: function() {
+        var frames = this.timedItem.effect.getFrames();
+
+        // We need to loop through the frames to get all the properties
+        // because each frame may only have a subset.
+        var seenProperties = {'composite': true, 'offset': true};
+        var properties = [];
+
+        for (var i = 0; i < frames.length; i++) {
+          for (var prop in frames[i]) {
+                
+            if (seenProperties[prop]) {
+              continue;
+            }
+
+            seenProperties[prop] = true;
+            properties.push(prop);
+          }
+        }
+
+        // Update the view.
+        for (var i = 0; i < properties.length; i++) {
+          var div = document.createElement('div');
+          div.classList.add('property_container');
+
+          var h4 = document.createElement('h4');
+          var span = document.createElement('span');
+          h4.appendChild(span);
+          span.innerHTML = properties[i];
+          div.appendChild(h4);
+          this.$.keyframe_container.appendChild(div);
+
+          for (var j = 0; j < frames.length; j++) {
+            if (!frames[i][properties[j]]) {
+              return;
+            }
+
+            var box = document.createElement('input');
+            box.type = 'text';
+            box.readOnly = true;
+            box.value = frames[i][properties[j]];
+            box.style.width = (box.value.length * 6) + 'px';
+            box.classList.add('box');
+            div.appendChild(box);
+          }
+
+        }
+      },
+    });
+  </script>
+</polymer-element>
