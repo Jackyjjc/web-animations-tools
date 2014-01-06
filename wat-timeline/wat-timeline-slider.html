@@ -1,0 +1,65 @@
+<!--
+Copyright 2013 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+<!DOCTYPE html>
+
+<link rel="import" href="../../polymer/polymer.html">
+
+<polymer-element name="wat-timeline-slider" attributes="player secToPixel">
+  <template>
+  <style>
+    #svg {
+      width: 120%;
+      position: absolute;
+    }
+  </style>
+    <div id="slider">
+      <svg id="svg" xmlns="http://www.w3.org/2000/svg">
+        <g on-track="{{onTrack}}">
+          <circle cx="{{x}}px" cy="23px" r="6px"></circle>
+          <line id="slider_line"
+                x1="{{x}}px" y1="0" 
+                x2="{{x}}px" y2="100%" 
+                stroke="black"></line>
+        </g>
+      </svg>
+    </div>
+  </template>
+  <script>
+    'use strict';
+
+    Polymer('wat-timeline-slider', {
+      player: null,
+      x: 0,
+      secToPixel: 0,
+      observe: {
+        'player.currentTime': 'onPlayerTimeChanged',
+      },
+      onPlayerTimeChanged: function(e) {
+        this.player.currentTime = Math.min(this.player.currentTime, this.player.source.endTime);
+        this.player.currentTime = Math.max(this.player.currentTime, this.player.source.startTime);
+        if (isNaN(this.player.currentTime)) {
+          return;
+        }
+        this.x = this.player.currentTime * this.secToPixel;
+      },
+      onTrack: function(e) {
+        var newCurrentTime = (e.clientX / this.secToPixel) + this.player.source.startTime;
+        this.player.currentTime = newCurrentTime;
+      }
+    });
+  </script>
+</polymer-element>

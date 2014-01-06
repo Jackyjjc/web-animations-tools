@@ -1,0 +1,106 @@
+<!--
+Copyright 2013 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+<!DOCTYPE html>
+
+<link rel="import" href="../../polymer/polymer.html">
+
+<polymer-element name="wat-timeline-axis" attributes="width timespan numMarker">
+  <template>
+  <style>
+    #svg {
+      overflow: visible;
+    }
+  </style>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" height="25px"></svg>
+  </template>
+  <script>
+    'use strict';
+
+    Polymer('wat-timeline-axis', {
+      width: 100,
+      timespan: 1,
+      numMarkers: 25,
+
+      observe: {
+        width: 'updateView',
+        timespan: 'updateView',
+        numMarkers: 'updateView'
+      },
+
+      updateView: function(oldValue, newValue) {
+        // Remove the old axis before adding the new one.
+        var child = this.$.svg.children[0];
+        if (child) {
+          this.$.svg.removeChild(child);
+        }
+
+        var SVGNS = 'http://www.w3.org/2000/svg';
+        var createMarker = function(linePos, textPos, value) {
+           var group = document.createElementNS(SVGNS, 'g');           
+
+           var text = document.createElementNS(SVGNS, 'text');
+           text.setAttribute('x', textPos);
+           text.setAttribute('y', 12);
+           text.setAttribute('font-size', '0.8em');
+           text.setAttribute('fill', '#000000');
+           text.textContent = value.toFixed(2);
+           text.setAttribute('style', 'text-anchor: middle');
+
+           var line = document.createElementNS(SVGNS, 'line');
+           line.setAttribute('x1', linePos);
+           line.setAttribute('x2', linePos);
+           line.setAttribute('y1', 17);
+           line.setAttribute('y2', 24);
+           line.setAttribute('stroke', 'black');
+
+           group.appendChild(text);
+           group.appendChild(line);
+
+           return group;
+        }
+
+        var axis = document.createElementNS(SVGNS, 'g');
+        axis.id = 'axis';
+        this.$.svg.appendChild(axis);
+
+        // Create the horizontal line.
+        var path = document.createElementNS(SVGNS, 'path');
+        path.setAttribute('stroke', 'black');
+        path.setAttribute('d', 'M 0 24 H ' + this.width);
+        axis.appendChild(path);
+
+        var timeInterval = this.timespan / (this.numMarkers - 1);
+        var markerDist = this.width / (this.numMarkers - 1); 
+
+        var offset;
+        for(var i = 0; i < this.numMarkers; i++) {
+          var linePos = markerDist * i;
+          var textPos = linePos;
+
+          // Move the first and last label to prevent svg clipping off the text.
+          if (i === 0) {
+            textPos += 11;
+          } else if (i === this.numMarkers - 1) {
+            textPos -= 11;
+          }
+          var marker = createMarker(linePos, textPos, timeInterval * i);
+          axis.appendChild(marker);       
+        }
+      }
+    });
+  </script>
+</polymer-element>

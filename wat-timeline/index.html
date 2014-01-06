@@ -1,0 +1,245 @@
+<!--
+Copyright 2013 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+
+<head>
+  <script src='../../web-animations-js/web-animations.js'></script>
+  <script src='../../platform/platform.js'></script>
+  <link rel='import' href='wat-timeline.html'>
+  <style>
+    select {
+      display: block;
+    }
+    #timeline {
+      margin: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <select></select>
+  <input id='test_button' type='button' value='+1'>
+  <wat-timeline id='timeline'></wat-timeline>
+  <script>
+    var b = document.querySelector('#test_button');
+    var animations = [
+    // Test 1 - Normal Animation
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {duration: 1}),
+    
+    // Test 2 - Positive Delay
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 3}),   
+
+    // Test 3 - Negative Delay
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: -2, duration: 3}),    
+
+    // Test 4 - Playback Rate (weird)
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: -2, duration: 3, playbackRate: 2}),    
+
+    // Test 5 - Positive Playback Rate
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 3, playbackRate: 2}),
+
+    // Test 6 - Negative Playback Rate
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 3, playbackRate: -1}),    
+
+    // Test 7 - Iteration
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 1, iterations: 3}),    
+
+    // Test 8 - Iteration (fraction)
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 1, iterations: 2.3}),    
+
+    // Test 9 - Iteration Start with negative delay
+    new Animation(b, [
+          {backgroundColor: 'red', offset: 0},
+          {backgroundColor: 'blue', offset: 0.5}, 
+          {backgroundColor: 'green', offset: 1}
+        ], {duration: 1, delay: -0.5, iterationStart: 0.5}),
+
+    // Test 10 - Iteration Start
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 1, iterations: 1, iterationStart: 0.7}),    
+
+    // Test 11 - Iteration Start with Fraction
+    new Animation (b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 1, iterations: 0.3, iterationStart: 0.7}),    
+
+    // Test 12 - SeqGroup
+    new SeqGroup([
+      new Animation(b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 1, duration: 1, iterations: 2, iterationStart: 0.7}),
+      new Animation(b, [
+        {backgroundColor: 'red', offset: 0},
+        {backgroundColor: 'blue', offset: 0.5}, 
+        {backgroundColor: 'green', offset: 1}
+      ], 2)
+    ]),
+
+    // Test 13 - Positive delay in SeqGroup
+    new SeqGroup([
+        new Animation(b, [
+          {backgroundColor: 'red', offset: 0},
+          {backgroundColor: 'blue', offset: 0.5}, 
+          {backgroundColor: 'green', offset: 1}
+        ], 2),
+        new Animation(b, [
+          {transform: 'scale(1)', offset: 0},
+          {transform: 'scale(1.5)', offset: 0.5}, 
+          {transform: 'scale(1)', offset: 1}
+        ], {delay: 1, duration: 1, iterationStart: 0.7}),  
+      ]),
+
+
+    // Test 14 - Negative delay in SeqGroup
+    new SeqGroup([
+        new Animation(b, [
+          {backgroundColor: 'red', offset: 0},
+          {backgroundColor: 'blue', offset: 0.5}, 
+          {backgroundColor: 'green', offset: 1}
+        ], 2),
+        new Animation(b, [
+          {transform: 'scale(1)', offset: 0},
+          {transform: 'scale(1.5)', offset: 0.5}, 
+          {transform: 'scale(1)', offset: 1}
+        ], {delay: -1, duration: 1}),  
+      ]),
+
+    // Test 15 - Infinite Iterations
+    new SeqGroup([
+        new Animation(b, [
+          {backgroundColor: 'red', offset: 0},
+          {backgroundColor: 'blue', offset: 0.5}, 
+          {backgroundColor: 'green', offset: 1}
+        ], 2),
+        new Animation(b, [
+          {transform: 'scale(1)', offset: 0},
+          {transform: 'scale(1.5)', offset: 0.5}, 
+          {transform: 'scale(1)', offset: 1}
+        ], {duration: 1, iterations: Infinity}),  
+      ], {duration: 4}),
+
+    // Test 16 - Iteration start and negative delay on SeqGroup
+    new SeqGroup([
+        new Animation(b, [
+          {backgroundColor: 'red', offset: 0},
+          {backgroundColor: 'blue', offset: 0.5}, 
+          {backgroundColor: 'green', offset: 1}
+        ], {duration: 2, iterations: 4}),
+        new Animation(b, [
+          {transform: 'scale(1)', offset: 0},
+          {transform: 'scale(1.5)', offset: 0.5}, 
+          {transform: 'scale(1)', offset: 1}
+        ], {delay: 1, duration: 1, iterations: 2, iterationStart: 0.7}),  
+      ], {delay: -1, iterations: 1, iterationStart: 0.3}),
+
+    // Test 17 - Negative playback rate on group
+    new ParGroup([
+      new Animation(b, [
+        {transform: 'scale(1)', offset: 0},
+        {transform: 'scale(1.5)', offset: 0.5}, 
+        {transform: 'scale(1)', offset: 1}
+      ], {delay: 2, duration: 2})
+    ], {playbackRate: -1}),
+
+    // Test 18 - Complex animation
+    new SeqGroup([
+      new ParGroup([
+        new Animation(b, [
+          {transform: 'scale(1)', offset: 0},
+          {transform: 'scale(1.5)', offset: 0.5}, 
+          {transform: 'scale(1)', offset: 1}
+        ], {duration: 1, delay: 3}), 
+        new Animation(b, [
+          {opacity: '1', offset: 0},
+          {opacity: '0', offset: 0.55},
+          {opacity: '1', offset: 1},
+        ], {delay: -0.5, duration: 1, iterations: 1, iterationStart: 0.2, playbackRate: 1}),
+      ]),
+      new ParGroup([
+        new Animation(b, [
+          {transform: 'scale(1)', offset: 0},
+          {transform: 'scale(1.5)', offset: 0.5}, 
+          {transform: 'scale(1)', offset: 1}
+        ], {duration: 8, iterations: 1}), 
+        new Animation(b, [
+          {opacity: '1', offset: 0},
+          {opacity: '0', offset: 0.55},
+          {opacity: '1', offset: 1},
+        ], {duration:2, iterations: 5}),
+      ], {iterations: 2})
+    ], {playbackRate: 2, iterations: 2, delay: 1})
+    ];
+
+    document.addEventListener('WebComponentsReady', function() {
+      var timeline = document.querySelector('wat-timeline');
+
+      var select = document.querySelector('select');
+      for (var i = 0; i < animations.length; i++) {
+        var option = document.createElement('option');
+        option.label = 'test ' + (i + 1);
+        select.add(option);
+      }
+      select.onchange = function(e) {
+        timeline.timedItem = animations[this.selectedIndex];
+        timeline.player = document.timeline.play(timeline.timedItem);
+      }
+
+      timeline.timedItem = animations[0];
+      timeline.player = document.timeline.play(timeline.timedItem);
+    });
+  </script>
+</body>
