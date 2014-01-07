@@ -20,6 +20,7 @@ limitations under the License.
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../wat-timeline/wat-timeline-axis.html">
 <link rel="import" href="../wat-timeline/wat-timeline-slider.html">
+<link rel="import" href="wat-gkeyframe-item.html">
 
 <polymer-element name="wat-gkeyframe-editor" attribute="timedItem player">
   <template>
@@ -43,26 +44,21 @@ limitations under the License.
       text-align:center; 
       border-bottom: 1px solid #000; 
       line-height:0.1em; 
-      margin:10px 0 20px; 
+      margin:10px 0px 20px 0px; 
     } 
     h4 span { 
       background:#fff; 
       padding:0 10px; 
     }
-    .box {
-      position: absolute;
-      top: -10px;
-      left: 10px;
-      border: 1px solid black;
-      padding: 2px;
-    }
     .property_container {
+      margin-top: 15px;
+      margin-bottom: 40px;
       position: relative;
       width: 100%;
     }
   </style>
   <div id="container">
-    <!-- <wat-timeline-slider id="slider"></wat-timeline-slider> -->
+    <wat-timeline-slider id="slider"></wat-timeline-slider>
     <wat-timeline-axis id="axis"></wat-timeline-axis>
     <div id="keyframe_container">
     </div>
@@ -74,12 +70,39 @@ limitations under the License.
     Polymer('wat-gkeyframe-editor', {
       timedItem: null,
       player: null,
+      itemDict: null,
+      timespan: 0,
+      ready: function() {
+        this.addEventListener('on-property-change', function(e) {
+
+          var insert = function (frame, frames) {
+            var i = frames.length - 1;
+            while (i >= 0 && frame.offset < frames[i].offset) {
+              i--;
+            }
+            frames.splice(i + 1, 0, frame);
+          };
+
+          var newFrames = [];
+          for (var name in this.itemDict) {
+            var items = this.itemDict[name];
+            for (var i = 0; i < items.length; i++) {
+              var frame = {};
+              frame[items[i].property] = items[i].value;
+              frame['offset'] = (items[i].pos / items[i].secToPixel) / this.timespan;
+              insert(frame, newFrames);
+            }
+          }
+          this.timedItem.effect.setFrames(newFrames);
+        });
+      },
       playerChanged: function() {
         this.$.slider.player = this.player;
       },
       timedItemChanged: function() {
         // Only accept timedItems that has keyframeEffect.
         if (!this.timedItem.effect instanceof KeyframeEffect) {
+          this.timedItem = null;
           return;
         }
 
@@ -99,61 +122,52 @@ limitations under the License.
 
         this.$.axis.width = containerWidth;
         this.$.axis.timespan = timespan;
-        /*this.$.slider.secToPixel = secToPixel;*/
+        this.$.slider.secToPixel = secToPixel;
 
         // If there is no visible animation then show nothing.
         if (timespan === 0) {
           return;
         }
 
-        this.update();
+        this.timespan = timespan;
+        this.update(secToPixel, timespan);
       },
-      update: function() {
-        var frames = this.timedItem.effect.getFrames();
-
-        // We need to loop through the frames to get all the properties
-        // because each frame may only have a subset.
-        var seenProperties = {'composite': true, 'offset': true};
-        var properties = [];
-
-        for (var i = 0; i < frames.length; i++) {
-          for (var prop in frames[i]) {
-                
-            if (seenProperties[prop]) {
-              continue;
-            }
-
-            seenProperties[prop] = true;
-            properties.push(prop);
-          }
-        }
-
-        // Update the view.
-        for (var i = 0; i < properties.length; i++) {
+      update: function(secToPixel, timespan) {
+        var createContainer = function(propertyName) {
           var div = document.createElement('div');
           div.classList.add('property_container');
 
           var h4 = document.createElement('h4');
           var span = document.createElement('span');
           h4.appendChild(span);
-          span.innerHTML = properties[i];
+          span.innerHTML = propertyName;
           div.appendChild(h4);
-          this.$.keyframe_container.appendChild(div);
 
+          return div;
+        }
+
+        var startX = this.$.keyframe_container.getBoundingClientRect().left;
+        var properties = this.timedItem.effect._propertySpecificKeyframes();
+
+        this.itemDict = {};
+        // Update the view.
+        for (var prop in properties) {
+          var div = createContainer(prop);
+
+          this.itemDict[prop] = [];
+          var frames = properties[prop];
           for (var j = 0; j < frames.length; j++) {
-            if (!frames[i][properties[j]]) {
-              return;
-            }
-
-            var box = document.createElement('input');
-            box.type = 'text';
-            box.readOnly = true;
-            box.value = frames[i][properties[j]];
-            box.style.width = (box.value.length * 6) + 'px';
-            box.classList.add('box');
+            var box = document.createElement('wat-gkeyframe-item');
+            this.itemDict[prop].push(box);
+            box.property = prop;
+            box.secToPixel = secToPixel;
+            box.startX = startX;
+            box.endX = timespan * secToPixel;
+            box.value = frames[j].cssValue;
+            box.pos = (timespan * frames[j].offset) * secToPixel;
             div.appendChild(box);
           }
-
+          this.$.keyframe_container.appendChild(div);
         }
       },
     });
