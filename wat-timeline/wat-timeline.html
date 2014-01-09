@@ -1,5 +1,5 @@
 <!--
-Copyright 2013 Google Inc. All Rights Reserved.
+Copyright 2014 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -114,11 +114,11 @@ limitations under the License.
         // the axis and the slider will have the same width with it.
         var containerWidth = timeline.clientWidth; 
         var timespan = Math.max(this.timedItem.endTime - this.timedItem.startTime, 0);
-        var secToPixel = containerWidth / timespan;
+        var pixelsPerSecond = containerWidth / timespan;
 
         this.$.axis.width = containerWidth;
         this.$.axis.timespan = timespan;
-        this.$.slider.secToPixel = secToPixel;
+        this.$.slider.pixelsPerSecond = pixelsPerSecond;
 
         // If there is no visible animation then show nothing.
         if (timespan === 0) {
@@ -139,21 +139,21 @@ limitations under the License.
           playbackRate: 1,
         };
 
-        var animationTree = this.buildAnimTree(this.timedItem, secToPixel, timing);
+        var animationTree = this.buildAnimTree(this.timedItem, pixelsPerSecond, timing);
         this.$.timeline_container.appendChild(animationTree);
       },
-      buildAnimTree: function(item, secToPixel, parentTiming) {
+      buildAnimTree: function(item, pixelsPerSecond, parentTiming) {
         var playbackRate = parentTiming.playbackRate * item.specified.playbackRate;
 
         // Build the current item.
         var timelineItem = document.createElement('wat-timeline-item');
-        timelineItem.init(item, secToPixel, parentTiming.duration, playbackRate);
+        timelineItem.init(item, pixelsPerSecond, parentTiming.duration, playbackRate);
         
         // Translate the item accordingly.
         var totalDelay = (item.specified.delay - parentTiming.iterationStartTime);
         var traslate = (totalDelay + item.startTime) / Math.abs(parentTiming.playbackRate) ;
-        timelineItem.style.left = (traslate * secToPixel) + 'px';
-        timelineItem.style.width = ((item.endTime - item.startTime) * secToPixel) + 'px';
+        timelineItem.style.left = (traslate * pixelsPerSecond) + 'px';
+        timelineItem.style.width = ((item.endTime - item.startTime) * pixelsPerSecond) + 'px';
 
         var itemDuration = item.duration / Math.abs(playbackRate);
         var timing = {
@@ -165,7 +165,7 @@ limitations under the License.
         // Build the children.
         if (item instanceof ParGroup || item instanceof SeqGroup) {
           for (var i = 0; i < item.children.length; i++) {
-            var child = this.buildAnimTree(item.children[i], secToPixel, timing);
+            var child = this.buildAnimTree(item.children[i], pixelsPerSecond, timing);
             timelineItem.appendChild(child);
           }
         }

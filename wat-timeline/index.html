@@ -1,5 +1,5 @@
 <!--
-Copyright 2013 Google Inc. All Rights Reserved.
+Copyright 2014 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ limitations under the License.
 <!DOCTYPE html>
 
 <head>
-  <script src='../../web-animations-js/web-animations.js'></script>
-  <script src='../../platform/platform.js'></script>
+  <script src="../../web-animations-js/web-animations.js"></script>
+  <script src="../../platform/platform.js"></script>
   <link rel='import' href='wat-timeline.html'>
   <style>
     select {
@@ -39,56 +39,56 @@ limitations under the License.
     var b = document.querySelector('#test_button');
     var animations = [
     // Test 1 - Normal Animation
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {duration: 1}),
     
     // Test 2 - Positive Delay
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: 1, duration: 3}),   
 
     // Test 3 - Negative Delay
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: -2, duration: 3}),    
 
     // Test 4 - Playback Rate (weird)
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: -2, duration: 3, playbackRate: 2}),    
 
     // Test 5 - Positive Playback Rate
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: 1, duration: 3, playbackRate: 2}),
 
     // Test 6 - Negative Playback Rate
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: 1, duration: 3, playbackRate: -1}),    
 
     // Test 7 - Iteration
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: 1, duration: 1, iterations: 3}),    
 
     // Test 8 - Iteration (fraction)
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
@@ -102,14 +102,14 @@ limitations under the License.
         ], {duration: 1, delay: -0.5, iterationStart: 0.5}),
 
     // Test 10 - Iteration Start
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
       ], {delay: 1, duration: 1, iterations: 1, iterationStart: 0.7}),    
 
     // Test 11 - Iteration Start with Fraction
-    new Animation (b, [
+    new Animation(b, [
         {transform: 'scale(1)', offset: 0},
         {transform: 'scale(1.5)', offset: 0.5}, 
         {transform: 'scale(1)', offset: 1}
@@ -160,11 +160,6 @@ limitations under the License.
 
     // Test 15 - Infinite Iterations
     new SeqGroup([
-        new Animation(b, [
-          {backgroundColor: 'red', offset: 0},
-          {backgroundColor: 'blue', offset: 0.5}, 
-          {backgroundColor: 'green', offset: 1}
-        ], 2),
         new Animation(b, [
           {transform: 'scale(1)', offset: 0},
           {transform: 'scale(1.5)', offset: 0.5}, 

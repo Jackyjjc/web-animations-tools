@@ -1,5 +1,5 @@
 <!--
-Copyright 2013 Google Inc. All Rights Reserved.
+Copyright 2014 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ limitations under the License.
 
 <link rel="import" href="../../polymer/polymer.html">
 
-<polymer-element name="wat-timeline-item" constructor="timedItem secToPixel">
+<polymer-element name="wat-timeline-item" constructor="timedItem pixelsPerSecond">
   <template>
   <style>
     :host {
@@ -30,12 +30,12 @@ limitations under the License.
     #group-container {
       display: flex;
       width: intrinsic;
-      background-color: rgba(66,133,244,0.5);
+      background-color: rgba(66, 133, 244, 0.5);
     }
     .timeline-item {
       overflow: hidden;
       display: inline-block;
-      border: 1px solid rgba(250,250,250,0.5);
+      border: 1px solid rgba(250, 250, 250, 0.5);
       box-sizing: border-box;
     }
     #group-container.selected {
@@ -44,13 +44,13 @@ limitations under the License.
       box-shadow: 0 0 5px red;
     }
     .iteration {
-      background-color: rgba(192,192,192, 0.8);
+      background-color: rgba(192, 192, 192, 0.8);
     }
     .negativePlayback {
-      background-color: rgba(0,255,0, 0.3);
+      background-color: rgba(0, 255, 0, 0.3);
     }
     #group-container.playing {
-      background-color: rgba(247,195,52,0.8);
+      background-color: rgba(247, 195, 52, 0.8);
     }
     span {
       overflow: hidden;
@@ -58,20 +58,17 @@ limitations under the License.
       padding: 10px;
     }
   </style>
-    <div id="group-container" ></div>
+    <div id="group-container" class="{{selected ? 'selected' : ''}}"></div>
   </template>
   <script>
     'use strict';
 
     Polymer('wat-timeline-item', {
       timedItem: null,
-      secToPixel: 0,
+      pixelsPerSecond: 0,
       type: '',
       selected: false,
-      selectedChanged: function(oldValue, newValue) {
-        this.$['group-container'].classList.toggle('selected');
-      },
-      init: function(timedItem, secToPixel, duration, playbackRate) {
+      init: function(timedItem, pixelsPerSecond, duration, playbackRate) {
         this.timedItem = timedItem;
         
         // When the animation is playing, toggle the class to change the style.
@@ -87,12 +84,12 @@ limitations under the License.
           }.bind(this.$['group-container']));
         }
 
-        this.secToPixel = secToPixel;
+        this.pixelsPerSecond = pixelsPerSecond;
         this.type = timedItem.type ? timedItem.type + 'Group' : 'animation';
 
-        this.buildItem(secToPixel, duration, playbackRate);
+        this.buildItem(pixelsPerSecond, duration, playbackRate);
       },
-      buildItem: function(secToPixel, duration, playbackRate) {
+      buildItem: function(pixelsPerSecond, duration, playbackRate) {
         var timingInput = this.timedItem.specified;
 
         var iterationCount = timingInput.iterations;
@@ -127,7 +124,7 @@ limitations under the License.
           }
 
           var timespan = (this.timedItem.duration * iterationLength) / Math.abs(playbackRate);
-          box.style.width = box.style.minWidth = box.style.maxWidth = (timespan * secToPixel) + 'px';
+          box.style.width = box.style.minWidth = box.style.maxWidth = (timespan * pixelsPerSecond) + 'px';
 
           this.$['group-container'].appendChild(box);
 
