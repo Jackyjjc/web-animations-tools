@@ -21,11 +21,22 @@ limitations under the License.
 <polymer-element name="wat-timeline-axis" attributes="width timespan numMarker">
   <template>
   <style>
-    #svg {
+    svg {
       overflow: visible;
     }
+    text {
+      text-anchor: middle;
+    }
   </style>
-    <svg id="svg" xmlns="http://www.w3.org/2000/svg" height="25px"></svg>
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" height="25px">
+    <g id="axis">
+      <path d="M 0 24 H {{width}}" stroke="black"/>
+<!--       <template repeat="{{marker in markers}}">
+        <text x="{{marker.textPos}}" y="12" font-size="0.8em" fill="#000000">{{marker.time}}</text>
+        <line x1="{{marker.linePos}}" x2="{{marker.linePos}}" y1="17" y2="24" stroke="black"/>
+      </template> -->
+    </g>
+  </svg>
   </template>
   <script>
     'use strict';
@@ -34,6 +45,7 @@ limitations under the License.
       width: 100,
       timespan: 1,
       numMarkers: 25,
+      markers: null,
 
       observe: {
         width: 'updateView',
@@ -42,51 +54,9 @@ limitations under the License.
       },
 
       updateView: function(oldValue, newValue) {
-        // Remove the old axis before adding the new one.
-        var child = this.$.svg.children[0];
-        if (child) {
-          this.$.svg.removeChild(child);
-        }
-
-        var SVGNS = 'http://www.w3.org/2000/svg';
-        var createMarker = function(linePos, textPos, value) {
-           var group = document.createElementNS(SVGNS, 'g');           
-
-           var text = document.createElementNS(SVGNS, 'text');
-           text.setAttribute('x', textPos);
-           text.setAttribute('y', 12);
-           text.setAttribute('font-size', '0.8em');
-           text.setAttribute('fill', '#000000');
-           text.textContent = value.toFixed(2);
-           text.setAttribute('style', 'text-anchor: middle');
-
-           var line = document.createElementNS(SVGNS, 'line');
-           line.setAttribute('x1', linePos);
-           line.setAttribute('x2', linePos);
-           line.setAttribute('y1', 17);
-           line.setAttribute('y2', 24);
-           line.setAttribute('stroke', 'black');
-
-           group.appendChild(text);
-           group.appendChild(line);
-
-           return group;
-        }
-
-        var axis = document.createElementNS(SVGNS, 'g');
-        axis.id = 'axis';
-        this.$.svg.appendChild(axis);
-
-        // Create the horizontal line.
-        var path = document.createElementNS(SVGNS, 'path');
-        path.setAttribute('stroke', 'black');
-        path.setAttribute('d', 'M 0 24 H ' + this.width);
-        axis.appendChild(path);
-
+        var markers = [];
         var timeInterval = this.timespan / (this.numMarkers - 1);
         var markerDist = this.width / (this.numMarkers - 1); 
-
-        var offset;
         for(var i = 0; i < this.numMarkers; i++) {
           var linePos = markerDist * i;
           var textPos = linePos;
@@ -97,9 +67,15 @@ limitations under the License.
           } else if (i === this.numMarkers - 1) {
             textPos -= 11;
           }
-          var marker = createMarker(linePos, textPos, timeInterval * i);
-          axis.appendChild(marker);       
+
+          markers.push({
+            time: timeInterval * i,
+            linePos: linePos,
+            textPos: textPos,
+          });  
         }
+
+        this.markers = markers;
       }
     });
   </script>

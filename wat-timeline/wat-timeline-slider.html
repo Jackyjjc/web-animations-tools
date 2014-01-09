@@ -33,7 +33,8 @@ limitations under the License.
           <line id="slider_line"
                 x1="{{x}}px" y1="0" 
                 x2="{{x}}px" y2="100%" 
-                stroke="black"></line>
+                stroke="black">
+          </line>
         </g>
       </svg>
     </div>
@@ -48,12 +49,9 @@ limitations under the License.
       observe: {
         'player.currentTime': 'onPlayerTimeChanged',
       },
-      onPlayerTimeChanged: function(e) {
+      onPlayerTimeChanged: function() {
         this.player.currentTime = Math.min(this.player.currentTime, this.player.source.endTime);
         this.player.currentTime = Math.max(this.player.currentTime, this.player.source.startTime);
-        if (isNaN(this.player.currentTime)) {
-          return;
-        }
         this.x = this.player.currentTime * this.secToPixel;
       },
       onTrack: function(e) {
