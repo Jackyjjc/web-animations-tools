@@ -1,5 +1,5 @@
 <!--
-Copyright 2013 Google Inc. All Rights Reserved.
+Copyright 2014 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ limitations under the License.
 
 <link rel="import" href="../../polymer/polymer.html">
 
-<polymer-element name="wat-timeline-slider" attributes="player secToPixel">
+<polymer-element name="wat-timeline-slider" attributes="player pixelsPerSecond">
   <template>
   <style>
     #svg {
@@ -44,7 +44,7 @@ limitations under the License.
     Polymer('wat-timeline-slider', {
       player: null,
       x: 0,
-      secToPixel: 0,
+      pixelsPerSecond: 0,
       observe: {
         'player.currentTime': 'onPlayerTimeChanged',
       },
@@ -54,11 +54,12 @@ limitations under the License.
         if (isNaN(this.player.currentTime)) {
           return;
         }
-        this.x = this.player.currentTime * this.secToPixel;
+        this.x = this.player.currentTime * this.pixelsPerSecond;
       },
       onTrack: function(e) {
-        var newCurrentTime = (e.clientX / this.secToPixel) + this.player.source.startTime;
+        var newCurrentTime = (e.clientX / this.pixelsPerSecond) + this.player.source.startTime;
         this.player.currentTime = newCurrentTime;
+        this.player.paused = true;
       }
     });
   </script>

@@ -1,5 +1,5 @@
 <!--
-Copyright 2013 Google Inc. All Rights Reserved.
+Copyright 2014 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ limitations under the License.
 <polymer-element name="wat-timeline-axis" attributes="width timespan numMarker">
   <template>
   <style>
-    #svg {
-      overflow: visible;
-    }
-  </style>
+      #svg {
+        overflow: visible;
+      }
+    </style>
     <svg id="svg" xmlns="http://www.w3.org/2000/svg" height="25px"></svg>
   </template>
   <script>
@@ -45,32 +45,31 @@ limitations under the License.
         // Remove the old axis before adding the new one.
         var child = this.$.svg.children[0];
         if (child) {
-          this.$.svg.removeChild(child);
+          child.remove();
         }
 
         var SVGNS = 'http://www.w3.org/2000/svg';
         var createMarker = function(linePos, textPos, value) {
-           var group = document.createElementNS(SVGNS, 'g');           
+          var group = document.createElementNS(SVGNS, 'g');           
 
-           var text = document.createElementNS(SVGNS, 'text');
-           text.setAttribute('x', textPos);
-           text.setAttribute('y', 12);
-           text.setAttribute('font-size', '0.8em');
-           text.setAttribute('fill', '#000000');
-           text.textContent = value.toFixed(2);
-           text.setAttribute('style', 'text-anchor: middle');
+          var text = document.createElementNS(SVGNS, 'text');
+          text.setAttribute('x', textPos);
+          text.setAttribute('y', 12);
+          text.setAttribute('font-size', '0.8em');
+          text.setAttribute('fill', '#000000');
+          text.textContent = value.toFixed(2);
+          text.setAttribute('style', 'text-anchor: middle');
 
-           var line = document.createElementNS(SVGNS, 'line');
-           line.setAttribute('x1', linePos);
-           line.setAttribute('x2', linePos);
-           line.setAttribute('y1', 17);
-           line.setAttribute('y2', 24);
-           line.setAttribute('stroke', 'black');
+          var line = document.createElementNS(SVGNS, 'line');
+          line.setAttribute('x1', linePos);
+          line.setAttribute('x2', linePos);
+          line.setAttribute('y1', 17);
+          line.setAttribute('y2', 24);
+          line.setAttribute('stroke', 'black');
 
-           group.appendChild(text);
-           group.appendChild(line);
-
-           return group;
+          group.appendChild(text);
+          group.appendChild(line);
+          return group;
         }
 
         var axis = document.createElementNS(SVGNS, 'g');

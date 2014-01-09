@@ -29,9 +29,9 @@ limitations under the License.
   <script>
       var b = document.querySelector('#test_box');
       var timedItem = new Animation(b, [
-        {transform: 'scale(1)', opacity: 1, backgroundColor: 'red'},
-        {transform: 'scale(1.5)', opacity: 0, backgroundColor: 'green'}, 
-        {transform: 'scale(1)', opacity: 1, backgroundColor: 'blue'},
+        {transform: 'scale(1)', backgroundColor: 'red'},
+        {transform: 'scale(1.5)', backgroundColor: 'green'}, 
+        {transform: 'scale(1)', backgroundColor: 'blue'},
       ], 2);
       
       b.onclick = function(e) {

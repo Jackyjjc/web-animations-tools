@@ -88,6 +88,7 @@ limitations under the License.
 
         if (this.editing) {
           this.$.input.focus();
+        } else {
           this.fire('on-property-change', {name: this.property, value: this.value});
         }
       },
