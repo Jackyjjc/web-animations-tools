@@ -18,6 +18,7 @@ limitations under the License.
 <!DOCTYPE html>
 
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../wat-gkeyframe-editor/wat-gkeyframe-editor.html">
 
 <polymer-element name="wat-timeline-item" constructor="timedItem pixelsPerSecond">
   <template>
@@ -57,6 +58,9 @@ limitations under the License.
       display: block;
       padding: 10px;
     }
+    div.hidden {
+      display: none;
+    }
   </style>
     <div id="group-container" class="{{selected ? 'selected' : ''}}"></div>
   </template>
@@ -82,6 +86,24 @@ limitations under the License.
           this.timedItem.addEventListener('end', function(e) {
             this.$['group-container'].classList.remove('playing');
           }.bind(this));
+
+          if (this.timedItem.effect instanceof KeyframeEffect) {
+
+            document.addEventListener('keyup', function(e) {
+              if (!this.selected) {
+                return;
+              }
+
+              this.$['group-container'].childNodes[1].classList.toggle('hidden');
+              var keyframeEditor = this.$['group-container'].childNodes[0];
+              keyframeEditor.$.keyframe_container.style.minWidth = this.$['group-container'].childNodes[1].style.minWidth;
+              keyframeEditor.classList.toggle('hidden');
+              if (!keyframeEditor.classList.contains('hidden')) {
+                keyframeEditor.timedItem = timedItem;
+              }
+            }.bind(this));
+          }
+
         }
 
         this.pixelsPerSecond = pixelsPerSecond;
@@ -117,7 +139,10 @@ limitations under the License.
           }
 
           if (firstItem) {
-            box.innerHTML = '<span>' + this.type + '</span>' + 
+            var keyframeEditor = document.createElement('wat-gkeyframe-editor');
+            keyframeEditor.classList.add('hidden');
+            this.$['group-container'].appendChild(keyframeEditor);
+            box.innerHTML = '<span id="item-name">' + this.type + '</span>' + 
                             '<content></content>';
           } else {
             box.classList.toggle('iteration');
