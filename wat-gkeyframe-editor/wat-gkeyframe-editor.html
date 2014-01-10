@@ -1,0 +1,173 @@
+<!--
+Copyright 2013 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../wat-timeline/wat-timeline-axis.html">
+<link rel="import" href="../wat-timeline/wat-timeline-slider.html">
+<link rel="import" href="wat-gkeyframe-item.html">
+
+<polymer-element name="wat-gkeyframe-editor" attribute="timedItem player">
+  <template>
+  <style>
+    :host {
+      display: block;
+    }
+    #container {
+      position: relative;
+      margin-left: 1%;
+      margin-right: 1%;
+    }
+    #keyframe_container {
+      position: relative;
+      margin-top: 6px;
+      width: 100%;
+      height: 100%;
+    }
+    h4 { 
+      width:100%; 
+      text-align:center; 
+      border-bottom: 1px solid #000; 
+      line-height:0.1em; 
+      margin:10px 0px 20px 0px; 
+    } 
+    h4 span { 
+      background:#fff; 
+      padding:0 10px; 
+    }
+    .property_container {
+      margin-top: 15px;
+      margin-bottom: 40px;
+      position: relative;
+      width: 100%;
+    }
+  </style>
+  <div id="container">
+    <wat-timeline-slider id="slider"></wat-timeline-slider>
+    <wat-timeline-axis id="axis"></wat-timeline-axis>
+    <div id="keyframe_container">
+    </div>
+  <div>
+  </template>
+  <script>
+    'use strict';
+
+    Polymer('wat-gkeyframe-editor', {
+      timedItem: null,
+      player: null,
+      itemDict: null,
+      timespan: 0,
+      ready: function() {
+        this.addEventListener('on-property-change', function(e) {
+
+          var insert = function (frame, frames) {
+            var i = frames.length - 1;
+            while (i >= 0 && frame.offset < frames[i].offset) {
+              i--;
+            }
+            frames.splice(i + 1, 0, frame);
+          };
+
+          var newFrames = [];
+          for (var name in this.itemDict) {
+            var items = this.itemDict[name];
+            for (var i = 0; i < items.length; i++) {
+              var frame = {};
+              frame[items[i].property] = items[i].value;
+              frame['offset'] = (items[i].pos / items[i].secToPixel) / this.timespan;
+              insert(frame, newFrames);
+            }
+          }
+          this.timedItem.effect.setFrames(newFrames);
+        });
+      },
+      playerChanged: function() {
+        this.$.slider.player = this.player;
+      },
+      timedItemChanged: function() {
+        // Only accept timedItems that has keyframeEffect.
+        if (!this.timedItem.effect instanceof KeyframeEffect) {
+          this.timedItem = null;
+          return;
+        }
+
+        // Remove all the children and rebuild the view.
+        var timeline = this.$.keyframe_container;
+        while (timeline.firstChild) {
+          timeline.removeChild(timeline.firstChild);
+        }
+
+        // Get the visual attributes of the timeline container so that
+        // the axis and the slider will have the same width with it.
+        var containerWidth = timeline.clientWidth; 
+        var timespan = Math.max(this.timedItem.endTime - this.timedItem.startTime, 0);
+        var secToPixel = containerWidth / timespan;
+
+        this.$.axis.width = containerWidth;
+        this.$.axis.timespan = timespan;
+        this.$.slider.secToPixel = secToPixel;
+
+        // If there is no visible animation then show nothing.
+        if (timespan === 0) {
+          return;
+        }
+
+        this.timespan = timespan;
+        this.update(secToPixel, timespan);
+      },
+      update: function(secToPixel, timespan) {
+        var createContainer = function(propertyName) {
+          var div = document.createElement('div');
+          div.classList.add('property_container');
+
+          var h4 = document.createElement('h4');
+          var span = document.createElement('span');
+          h4.appendChild(span);
+          span.innerHTML = propertyName;
+          div.appendChild(h4);
+
+          return div;
+        }
+
+        var startX = this.$.keyframe_container.getBoundingClientRect().left;
+        var properties = this.timedItem.effect._propertySpecificKeyframes();
+
+        this.itemDict = {};
+        // Update the view.
+        for (var prop in properties) {
+          var div = createContainer(prop);
+
+          this.itemDict[prop] = [];
+          var frames = properties[prop];
+          for (var j = 0; j < frames.length; j++) {
+            var box = document.createElement('wat-gkeyframe-item');
+            this.itemDict[prop].push(box);
+            box.property = prop;
+            box.secToPixel = secToPixel;
+            box.startX = startX;
+            box.endX = timespan * secToPixel;
+            box.value = frames[j].cssValue;
+            box.pos = (timespan * frames[j].offset) * secToPixel;
+            div.appendChild(box);
+          }
+          this.$.keyframe_container.appendChild(div);
+        }
+      },
+    });
+  </script>
+</polymer-element>
