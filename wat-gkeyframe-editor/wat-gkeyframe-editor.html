@@ -27,6 +27,7 @@ limitations under the License.
       display: block;
     }
     #keyframe_container {
+      overflow: hidden;
       position: relative;
       margin-top: 6px;
       width: 100%;
@@ -43,6 +44,9 @@ limitations under the License.
       background:#fff; 
       padding:0 10px; 
     }
+    text {
+
+    }
     .property_container {
       margin-top: 15px;
       margin-bottom: 40px;
@@ -58,9 +62,8 @@ limitations under the License.
 
     Polymer('wat-gkeyframe-editor', {
       timedItem: null,
-      player: null,
       itemDict: null,
-      timespan: 0,
+      width: 0,
       ready: function() {
         this.addEventListener('on-property-change', function(e) {
 
@@ -85,9 +88,6 @@ limitations under the License.
           this.timedItem.effect.setFrames(newFrames);
         });
       },
-      playerChanged: function() {
-        this.$.slider.player = this.player;
-      },
       timedItemChanged: function() {
         // Only accept timedItems that has keyframeEffect.
         if (!this.timedItem.effect instanceof KeyframeEffect) {
@@ -96,7 +96,7 @@ limitations under the License.
         }
 
         // Remove all the children and rebuild the view.
-        var timeline = this.$.keyframe_container;
+        var child = this.$.keyframe_container.firstChild;
         while (timeline.firstChild) {
           timeline.removeChild(timeline.firstChild);
         }

@@ -28,6 +28,7 @@ limitations under the License.
       border: 1px solid black;
       padding: 4px;
       cursor: pointer;
+      border-radius: 10px;
       background-color: white;
     }
     .hidden {
@@ -40,7 +41,7 @@ limitations under the License.
         on-dblclick="{{toggleEdit}}">
         {{value}}
     </span>
-    <input id="input" class="box hidden" value="{{value}}" style="left: {{pos - width / 2}}px;" on-blur="{{toggleEdit}}"></span>
+    <input id="input" class="box hidden" value="{{value}}" style="left: {{pos - width / 2}}px; width: {{width}}px" on-blur="{{toggleEdit}}"></span>
   <div>
   </template>
   <script>
