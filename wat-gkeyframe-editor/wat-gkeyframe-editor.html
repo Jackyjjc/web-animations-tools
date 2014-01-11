@@ -20,41 +20,40 @@ limitations under the License.
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="wat-gkeyframe-item.html">
 
-<polymer-element name="wat-gkeyframe-editor" attribute="timedItem player">
+<polymer-element name="wat-gkeyframe-editor" attribute="timedItem width properties">
   <template>
   <style>
-    :host {
-      display: block;
-    }
     #keyframe_container {
       overflow: hidden;
-      position: relative;
-      margin-top: 6px;
-      width: 100%;
-      height: 100%;
-    }
-    h4 { 
-      width:100%; 
-      text-align:center; 
-      border-bottom: 1px solid #000; 
-      line-height:0.1em; 
-      margin:10px 0px 20px 0px; 
-    } 
-    h4 span { 
-      background:#fff; 
-      padding:0 10px; 
-    }
-    text {
-
     }
     .property_container {
-      margin-top: 15px;
-      margin-bottom: 40px;
       position: relative;
-      width: 100%;
+    }
+    svg {
+      position: absolute;
+    }
+    text {
+      font-size: 0.9em;
+      fill: #000000;
+      text-anchor: middle;
+    }
+    path {
+      stroke: black;
     }
   </style>
-  <div id="keyframe_container">
+  <div id="keyframe_container" style="min-width:{{width}}px;height:{{properties ? properties.length * 28 : 0}}px;">
+    <template repeat="{{p in properties}}">
+      <div class="property_container">
+      <svg xmlns="http://www.w3.org/2000/svg" height="28px">
+        <text x="{{width / 4}}" y="13">{{p.name}}</text>
+        <text x="{{width * 3 / 4}}" y="13">{{p.name}}</text>
+        <path d="M 0 15 H {{width}}"></path>
+      </svg>
+      <template repeat="{{p.frames}}">
+        <wat-gkeyframe-item property="{{name}}" value="{{value}}" position="{{pos}}" endPoint="{{endPoint}}"></wat-gkeyframe-item>
+      </template>
+    </template>
+    </div>
   </div>
   </template>
   <script>
@@ -62,11 +61,10 @@ limitations under the License.
 
     Polymer('wat-gkeyframe-editor', {
       timedItem: null,
-      itemDict: null,
-      width: 0,
+      width: 100,
+      properties: null,
       ready: function() {
-        this.addEventListener('on-property-change', function(e) {
-
+/*        this.addEventListener('on-property-change', function(e) {
           var insert = function (frame, frames) {
             var i = frames.length - 1;
             while (i >= 0 && frame.offset < frames[i].offset) {
@@ -86,7 +84,7 @@ limitations under the License.
             }
           }
           this.timedItem.effect.setFrames(newFrames);
-        });
+        });*/
       },
       timedItemChanged: function() {
         // Only accept timedItems that has keyframeEffect.
@@ -96,62 +94,24 @@ limitations under the License.
         }
 
         // Remove all the children and rebuild the view.
-        var child = this.$.keyframe_container.firstChild;
-        while (timeline.firstChild) {
-          timeline.removeChild(timeline.firstChild);
-        }
+        //this.$.keyframe_container.innerHTML = '';
+        var propertyFrames = this.timedItem.effect._propertySpecificKeyframes();
 
-        // Get the visual attributes of the timeline container so that
-        // the axis and the slider will have the same width with it.
-        var containerWidth = timeline.clientWidth; 
-        var timespan = Math.max(this.timedItem.endTime - this.timedItem.startTime, 0);
-        var secToPixel = containerWidth / timespan;
-
-        // If there is no visible animation then show nothing.
-        if (timespan === 0) {
-          return;
-        }
-
-        this.timespan = timespan;
-        this.update(secToPixel, timespan);
-      },
-      update: function(secToPixel, timespan) {
-        var createContainer = function(propertyName) {
-          var div = document.createElement('div');
-          div.classList.add('property_container');
-
-          var h4 = document.createElement('h4');
-          var span = document.createElement('span');
-          h4.appendChild(span);
-          span.innerHTML = propertyName;
-          div.appendChild(h4);
-
-          return div;
-        }
-
-        var startX = this.$.keyframe_container.getBoundingClientRect().left;
-        var properties = this.timedItem.effect._propertySpecificKeyframes();
-
-        this.itemDict = {};
-        // Update the view.
-        for (var prop in properties) {
-          var div = createContainer(prop);
-
-          this.itemDict[prop] = [];
-          var frames = properties[prop];
-          for (var j = 0; j < frames.length; j++) {
-            var box = document.createElement('wat-gkeyframe-item');
-            this.itemDict[prop].push(box);
-            box.property = prop;
-            box.secToPixel = secToPixel;
-            box.startX = startX;
-            box.endX = timespan * secToPixel;
-            box.value = frames[j].cssValue;
-            box.pos = (timespan * frames[j].offset) * secToPixel;
-            div.appendChild(box);
+        var thing = [];
+        for (var prop in propertyFrames) {
+          var frames = propertyFrames[prop];
+          var thingy = [];
+          for (var i = 0; i < frames.length; i++) {
+            thingy.push({
+              name: prop,
+              value: frames[i].cssValue,
+              pos: this.width * frames[i].offset,
+              endPoint: this.width,
+            });
           }
-          this.$.keyframe_container.appendChild(div);
+          thing.push({name: prop, frames: thingy});
         }
+        this.properties = thing;
       },
     });
   </script>

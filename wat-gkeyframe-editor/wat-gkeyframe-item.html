@@ -19,42 +19,38 @@ limitations under the License.
 
 <link rel="import" href="../../polymer/polymer.html">
 
-<polymer-element name="wat-gkeyframe-item" attributes="pos value secToPixel readonly">
+<polymer-element name="wat-gkeyframe-item" attributes="property value position endPoint">
   <template>
   <style>
     .box {
       position: absolute;
-      top: -13px;
       border: 1px solid black;
       padding: 4px;
       cursor: pointer;
       border-radius: 10px;
-      background-color: white;
     }
     .hidden {
       display: none;
     }
   </style>
   <div>
-    <span id="text" class="box" style="left: {{pos - width / 2}}px;"
+    <span id="text" class="box" style="left: {{position - width / 2}}px;"
         on-pointerdown="{{pointerDown}}" on-pointerup="{{pointerUp}}" on-pointermove="{{pointerMove}}"
         on-dblclick="{{toggleEdit}}">
         {{value}}
     </span>
-    <input id="input" class="box hidden" value="{{value}}" style="left: {{pos - width / 2}}px; width: {{width}}px" on-blur="{{toggleEdit}}"></span>
+    <input id="input" class="box hidden" value="{{value}}" style="left: {{position - width / 2}}px; width: {{width}}px" on-blur="{{toggleEdit}}"></span>
   <div>
   </template>
   <script>
     'use strict';
 
     Polymer('wat-gkeyframe-item', {
-      pos: 0,
-      startX: 0,
-      endX: 0,
-      secToPixel: 0,
       property: '',
       value: '',
+      position: 0,
       width: 0,
+      endPoint: 0,
       pointers: {},
       editing: false,
       valueChanged: function(e) {
@@ -78,9 +74,9 @@ limitations under the License.
         if (!this.pointers[e.pointerId]) {
           return;
         }
-        this.pos = e.clientX - this.startX;
-        this.pos = Math.max(this.pos, 0);
-        this.pos = Math.min(this.pos, this.endX);
+        this.position = e.clientX;
+        this.position = Math.max(this.position, 0);
+        this.position = Math.min(this.position, this.endPoint);
       },
       toggleEdit: function(e) {
         this.editing = !this.editing;

@@ -96,7 +96,7 @@ limitations under the License.
 
               this.$['group-container'].childNodes[1].classList.toggle('hidden');
               var keyframeEditor = this.$['group-container'].childNodes[0];
-              keyframeEditor.$.keyframe_container.style.minWidth = this.$['group-container'].childNodes[1].style.minWidth;
+              keyframeEditor.width = parseInt(this.$['group-container'].childNodes[1].style.minWidth, 10);
               keyframeEditor.classList.toggle('hidden');
               if (!keyframeEditor.classList.contains('hidden')) {
                 keyframeEditor.timedItem = timedItem;
