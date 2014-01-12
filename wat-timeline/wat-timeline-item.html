@@ -82,13 +82,20 @@ limitations under the License.
       timedItem: null,
       pixelsPerSecond: 0,
       selected: false,
-      translateXChanged: function(oldValue, newValue) {
-        console.log(oldValue + ' wat ' + newValue);
-      },
-      init: function(timedItem, pixelsPerSecond, duration, playbackRate) {
+      init: function(timedItem, pixelsPerSecond, parentTiming) {
         this.timedItem = timedItem;
-        this.playbackRate = playbackRate;
-        
+        this.pixelsPerSecond = pixelsPerSecond;
+
+        var timingInput = timedItem.specified;
+
+        this.playbackRate = parentTiming.playbackRate * timingInput.playbackRate;
+
+        // Determind the translate of this item
+        var totalDelay = (timingInput.delay - parentTiming.iterationStartTime);
+        var translate = (totalDelay + timedItem.startTime) / Math.abs(parentTiming.playbackRate);
+        this.translateX = translate;
+
+                
         // When the animation is playing, toggle the class to change the style.
         // This is limited because if the player is manually adjusted then
         // these events may not be triggered.
@@ -119,21 +126,15 @@ limitations under the License.
           }
 
         }*/
-
-        this.pixelsPerSecond = pixelsPerSecond;
-        this.type = timedItem.type ? timedItem.type + 'Group' : 'animation';
-
-        this.buildItem(pixelsPerSecond, duration, playbackRate);
-      },
-      buildItem: function(pixelsPerSecond, duration, playbackRate) {
-        var timingInput = this.timedItem.specified;
         var iterationCount = timingInput.iterations;
         var iterationLength = Math.min(iterationCount, 1) * (1 - timingInput.iterationStart);
 
         var firstItem = true;
         var iterations = [];
+        var duration = parentTiming.duration;
+        console.log(duration);
         while (iterationCount > 0 && duration > 0) {
-          var timespan = (this.timedItem.duration * iterationLength) / Math.abs(playbackRate);
+          var timespan = (timedItem.duration * iterationLength) / Math.abs(this.playbackRate);
           
           if (firstItem) {
             this.width = timespan;
@@ -148,9 +149,25 @@ limitations under the License.
         }
 
         this.iterations = iterations;
-/*
 
-        var firstItem = true;
+
+        // Build Children.
+        var itemDuration = timedItem.duration / Math.abs(this.playbackRate);
+        var timing = {
+          duration: Math.min(parentTiming.duration, itemDuration),
+          iterationStartTime: (itemDuration * timingInput.iterationStart) + parentTiming.iterationStartTime,
+          playbackRate: this.playbackRate,
+        };
+
+        // Build the children.
+        if (timedItem instanceof ParGroup || timedItem instanceof SeqGroup) {
+          for (var i = 0; i < timedItem.children.length; i++) {
+            var child = document.createElement('wat-timeline-item');
+            child.init(timedItem.children[i], pixelsPerSecond, timing);
+            this.appendChild(child);
+          }
+        }
+        /*var firstItem = true;
         while (iterationCount > 0 && duration > 0) {
           var box = document.createElement('div');
           box.classList.add('timeline-item');

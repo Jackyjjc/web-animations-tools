@@ -139,8 +139,10 @@ limitations under the License.
           playbackRate: 1,
         };
 
-        var animationTree = this.buildAnimTree(this.timedItem, pixelsPerSecond, timing);
-        this.$['timeline-container'].appendChild(animationTree);
+        var root = document.createElement('wat-timeline-item');
+        root.init(this.timedItem, pixelsPerSecond, timing);
+        //var animationTree = this.buildAnimTree(this.timedItem, pixelsPerSecond, timing);
+        this.$['timeline-container'].appendChild(root);
       },
       buildAnimTree: function(item, pixelsPerSecond, parentTiming) {
         var playbackRate = parentTiming.playbackRate * item.specified.playbackRate;
@@ -153,7 +155,7 @@ limitations under the License.
         var totalDelay = (item.specified.delay - parentTiming.iterationStartTime);
         var translate = (totalDelay + item.startTime) / Math.abs(parentTiming.playbackRate);
         timelineItem.translateX = translate;
-        timelineItem.style.width = ((item.endTime - item.startTime) * pixelsPerSecond) + 'px';
+        //timelineItem.style.width = ((item.endTime - item.startTime) * pixelsPerSecond) + 'px';
 
         var itemDuration = item.duration / Math.abs(playbackRate);
         var timing = {
