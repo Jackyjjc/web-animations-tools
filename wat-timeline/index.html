@@ -84,11 +84,11 @@ limitations under the License.
     }, {
       name: 'Iteration start with negative delay', 
       timedItem: new Animation(b, sampleKeyframes,
-          {delay: 0.5, duration: 1, iterations: 1, iterationStart: 0.5}),
+          {delay: -0.5, duration: 1, iterations: 1, iterationStart: 0.5}),
     }, {
       name: 'Iteration start with fraction', 
       timedItem: new Animation(b, sampleKeyframes,
-          {delay: 0.5, duration: 1, iterations: 1, iterationStart: 0.7}),
+          {delay: 0.5, duration: 1, iterations: 2.3, iterationStart: 0.7}),
     }, {
       name: 'SeqGroup',
       timedItem: new SeqGroup([

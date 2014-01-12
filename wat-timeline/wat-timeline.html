@@ -151,8 +151,8 @@ limitations under the License.
         
         // Translate the item accordingly.
         var totalDelay = (item.specified.delay - parentTiming.iterationStartTime);
-        var traslate = (totalDelay + item.startTime) / Math.abs(parentTiming.playbackRate) ;
-        timelineItem.style.left = (traslate * pixelsPerSecond) + 'px';
+        var translate = (totalDelay + item.startTime) / Math.abs(parentTiming.playbackRate);
+        timelineItem.translateX = translate;
         timelineItem.style.width = ((item.endTime - item.startTime) * pixelsPerSecond) + 'px';
 
         var itemDuration = item.duration / Math.abs(playbackRate);

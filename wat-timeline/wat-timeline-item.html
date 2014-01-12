@@ -23,12 +23,10 @@ limitations under the License.
 <polymer-element name="wat-timeline-item" constructor="timedItem pixelsPerSecond">
   <template>
   <style>
-    :host {
+    #group-container {
       overflow: hidden;
       position: relative;
       cursor: pointer;
-    }
-    #group-container {
       display: flex;
       width: intrinsic;
       background-color: rgba(66, 133, 244, 0.5);
@@ -62,23 +60,39 @@ limitations under the License.
       display: none;
     }
   </style>
-    <div id="group-container" class="{{selected ? 'selected' : ''}}"></div>
+    <div id="group-container" class="{{selected ? 'selected' : ''}}"
+          style="left:{{translateX * pixelsPerSecond}}px">
+      <div class="timeline-item {{playbackRate < 0 ? 'negativePlayback' : ''}}" 
+            style="min-width:{{width * pixelsPerSecond}}px;">
+        <span>{{timedItem ? (timedItem.type ? timedItem.type + 'Group' : 'animation') : ''}}</span>
+        <content>
+      </div>
+      <template repeat="{{length in iterations}}">
+        <div class="timeline-item iteration" style="min-width:{{length * pixelsPerSecond}}px"></div>
+      </template>
+    </div>
   </template>
   <script>
     'use strict';
 
     Polymer('wat-timeline-item', {
+      playbackRate: 1,
+      translateX: 0,
+      width: 100,
       timedItem: null,
       pixelsPerSecond: 0,
-      type: '',
       selected: false,
+      translateXChanged: function(oldValue, newValue) {
+        console.log(oldValue + ' wat ' + newValue);
+      },
       init: function(timedItem, pixelsPerSecond, duration, playbackRate) {
         this.timedItem = timedItem;
+        this.playbackRate = playbackRate;
         
         // When the animation is playing, toggle the class to change the style.
         // This is limited because if the player is manually adjusted then
         // these events may not be triggered.
-        if (this.timedItem instanceof Animation) {
+/*        if (this.timedItem instanceof Animation) {
           this.timedItem.addEventListener('start', function(e) {
             this.$['group-container'].classList.add('playing');
           }.bind(this));
@@ -104,7 +118,7 @@ limitations under the License.
             }.bind(this));
           }
 
-        }
+        }*/
 
         this.pixelsPerSecond = pixelsPerSecond;
         this.type = timedItem.type ? timedItem.type + 'Group' : 'animation';
@@ -113,15 +127,34 @@ limitations under the License.
       },
       buildItem: function(pixelsPerSecond, duration, playbackRate) {
         var timingInput = this.timedItem.specified;
-
         var iterationCount = timingInput.iterations;
         var iterationLength = Math.min(iterationCount, 1) * (1 - timingInput.iterationStart);
+
+        var firstItem = true;
+        var iterations = [];
+        while (iterationCount > 0 && duration > 0) {
+          var timespan = (this.timedItem.duration * iterationLength) / Math.abs(playbackRate);
+          
+          if (firstItem) {
+            this.width = timespan;
+          } else {
+            iterations.push(timespan);
+          }
+
+          iterationCount -= iterationLength;
+          iterationLength = Math.min(iterationCount, 1);
+          duration -= timespan;
+          firstItem = false;
+        }
+
+        this.iterations = iterations;
+/*
 
         var firstItem = true;
         while (iterationCount > 0 && duration > 0) {
           var box = document.createElement('div');
           box.classList.add('timeline-item');
-            
+          
           // When clicked, fire an event telling the timeline an item is selected
           box.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -157,7 +190,7 @@ limitations under the License.
           iterationLength = Math.min(iterationCount, 1);
           duration -= timespan;
           firstItem = false;
-        }
+        }*/
       },
     });
   </script>
