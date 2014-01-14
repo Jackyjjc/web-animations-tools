@@ -1,0 +1,122 @@
+<!--
+Copyright 2014 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+
+<link rel="import" href="wat-gkeyframe-item.html">
+
+<polymer-element name="wat-gkeyframe-editor" attribute="timedItem startX width properties">
+  <template>
+  <style>
+    #keyframe-container {
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.6);
+    }
+    .property-container {
+      position: relative;
+      height: 29px;
+    }
+    svg {
+      position: absolute;
+    }
+    text {
+      font-size: 0.9em;
+      fill: #000000;
+      text-anchor: middle;
+    }
+    path {
+      stroke: silver;
+    }
+  </style>
+  <div id="keyframe-container" style="min-width:{{width}}px;height:{{properties ? properties.length * 28 : 0}}px;">
+    <template repeat="{{p in properties}}">
+      <div class="property-container">
+      <svg xmlns="http://www.w3.org/2000/svg" height="28px">
+        <text x="{{width / 4}}" y="13">{{p.name}}</text>
+        <text x="{{width * 3 / 4}}" y="13">{{p.name}}</text>
+        <path d="M 0 15 H {{width}}"></path>
+      </svg>
+      <template repeat="{{p.frames}}">
+        <wat-gkeyframe-item property="{{name}}" value="{{value}}" position="{{pos}}" endPoint="{{endPoint}}" startX="{{startX}}"></wat-gkeyframe-item>
+      </template>
+      </div>
+    </template>
+  </div>
+  </template>
+  <script>
+    'use strict';
+
+    Polymer('wat-gkeyframe-editor', {
+      timedItem: null,
+      width: 0,
+      startX: 0,
+      properties: null,
+      ready: function() {
+        this.addEventListener('on-property-change', function(e) {
+          var insert = function (frame, frames) {
+            var i = frames.length - 1;
+            while (i >= 0 && frame.offset < frames[i].offset) {
+              i--;
+            }
+            frames.splice(i + 1, 0, frame);
+          };
+
+          var newFrames = [];
+          var properties = this.$['keyframe-container'].querySelectorAll('.property-container');
+          for (var i = 0; i < properties.length; i++) {
+            var items = properties[i].querySelectorAll('wat-gkeyframe-item');
+            for (var j = 0; j < items.length; j++) {
+              var frame = {};
+              frame[items[j].property] = items[j].value;
+              frame['offset'] = items[j].position / items[j].endPoint;
+              insert(frame, newFrames);
+            }
+          }
+          this.timedItem.effect.setFrames(newFrames);
+        });
+      },
+      timedItemChanged: function() {
+        // Only accept timedItems that has keyframeEffect.
+        if (!this.timedItem.effect instanceof KeyframeEffect) {
+          this.timedItem = null;
+          return;
+        }
+
+        // Remove all the children and rebuild the view.
+        var propertyFrames = this.timedItem.effect._propertySpecificKeyframes();
+
+        var thing = [];
+        for (var prop in propertyFrames) {
+          var frames = propertyFrames[prop];
+          var thingy = [];
+          for (var i = 0; i < frames.length; i++) {
+            console.log(frames[i].cssValue);
+            thingy.push({
+              name: prop,
+              value: frames[i].cssValue,
+              pos: this.width * frames[i].offset,
+              endPoint: this.width,
+              startX: this.startX,
+            });
+          }
+          thing.push({name: prop, frames: thingy});
+        }
+        this.properties = thing;
+      },
+    });
+  </script>
+</polymer-element>

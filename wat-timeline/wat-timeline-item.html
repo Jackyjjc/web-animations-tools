@@ -17,7 +17,7 @@ limitations under the License.
 
 <!DOCTYPE html>
 
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../wat-gkeyframe-editor/wat-gkeyframe-editor.html">
 
 <polymer-element name="wat-timeline-item" attributes="timedItem pixelsPerSecond">
   <template>
@@ -55,10 +55,15 @@ limitations under the License.
       display: block;
       padding: 10px;
     }
+    .hidden {
+      display: none;
+    }
   </style>
     <div id="group-container" class="{{selected ? 'selected' : ''}}"
           style="left:{{translateX * pixelsPerSecond}}px">
-      <div class="timeline-item {{playbackRate < 0 ? 'negativePlayback' : ''}}" 
+      <wat-gkeyframe-editor id="keyframeEditor" class="hidden"
+      on-click="{{onSelect}}" on-dblclick="{{onFocus}}"></wat-gkeyframe-editor>
+      <div id="node" class="timeline-item {{playbackRate < 0 ? 'negativePlayback' : ''}}" 
             style="min-width:{{width * pixelsPerSecond}}px;"
             on-click="{{onSelect}}" on-dblclick="{{onFocus}}">
         <span>{{timedItem ? (timedItem.type ? timedItem.type + 'Group' : 'animation') : ''}}</span>
@@ -105,6 +110,26 @@ limitations under the License.
         if (this.timedItem instanceof Animation) {
           this.timedItem.addEventListener('start', this.onStart.bind(this));
           this.timedItem.addEventListener('end', this.onEnd.bind(this));
+          if (this.timedItem.effect instanceof KeyframeEffect) {
+            document.addEventListener('keyup', function(e) {
+
+              if (!this.selected) {
+                return;
+              }
+              if (e.keyCode !== 69) {
+                return;
+              }
+              var width = this.$.node.style.minWidth;
+              var keyframeEditor = this.$.keyframeEditor;
+              keyframeEditor.startX = this.$.node.getBoundingClientRect().left;
+              keyframeEditor.width = parseInt(width, 10);
+              this.$.node.classList.toggle('hidden');
+              keyframeEditor.classList.toggle('hidden');
+              if (!keyframeEditor.classList.contains('hidden')) {
+                keyframeEditor.timedItem = this.timedItem;
+              }
+            }.bind(this));
+          }
         }
 
         var iterationCount = timingInput.iterations;
