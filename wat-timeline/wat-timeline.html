@@ -21,6 +21,7 @@ limitations under the License.
 <link rel="import" href="wat-timeline-axis.html">
 <link rel="import" href="wat-timeline-scrubber.html">
 <link rel="import" href="wat-timeline-item.html">
+<link rel="import" href="../wat-effect-inspector/wat-effect-inspector.html">
 
 <polymer-element name="wat-timeline" attributes="timedItem player">
   <template>
@@ -31,6 +32,7 @@ limitations under the License.
     }
   </style>
   <div id="container">
+    <wat-effect-inspector id='inspector' timedItem="{{timedItem}}" localTime="{{player.currentTime}}"></wat-effect-inspector>
     <input id="back-button" type="button" value="<">
     <wat-timeline-scrubber id="scrubber"></wat-timeline-scrubber>
     <wat-timeline-axis id="axis"></wat-timeline-axis>

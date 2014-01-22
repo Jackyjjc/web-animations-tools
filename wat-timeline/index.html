@@ -21,6 +21,7 @@ limitations under the License.
   <script src="../../web-animations-js/web-animations.js"></script>
   <script src="../../platform/platform.js"></script>
   <link rel='import' href='wat-timeline.html'>
+
   <style>
     select {
       display: block;
@@ -35,12 +36,13 @@ limitations under the License.
   <select></select>
   <input id='test_button' type='button' value='+1'>
   <wat-timeline id='timeline'></wat-timeline>
+
   <script>
     var b = document.querySelector('#test_button');
     var sampleKeyframes = [
-      {transform: 'scale(1)', offset: 0},
-      {transform: 'scale(1.5)', offset: 0.5}, 
-      {transform: 'scale(1)', offset: 1}
+      {transform: 'scale(1)', backgroundColor:'red', offset: 0},
+      {transform: 'scale(1.5)', backgroundColor:'blue', offset: 0.5}, 
+      {transform: 'scale(1)', backgroundColor:'green', offset: 1}
     ];
     var sampleKeyframes1 = [
       {backgroundColor: 'red', offset: 0},
