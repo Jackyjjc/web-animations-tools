@@ -27,7 +27,7 @@ limitations under the License.
     <div id="container">
       {{timedItem.type ? 'Not an animation' : ''}}
       <template repeat="{{properties}}">
-        <button on-click="{{displayKeyFrames}}">{{name}}</button>
+        <button data-property="{{name}}" on-click="{{displayKeyFrames}}">{{name}}</button>
         <span>: {{value}}</span>
       </template> 
     <div>
@@ -61,12 +61,21 @@ limitations under the License.
 
         this.properties = properties;
       },
-      displayKeyFrames: function() {
-        
-        //copy the element then play the animation
-        var dupNode = this.timedItem.target.cloneNode(true);
-        dupNode.id = null;
-        this.$.con.appendChild(dupNode);
+      displayKeyFrames: function(e) {
+        var property = e.target.dataset['property'];
+        var propertyFrames = this.timedItem.effect._propertySpecificKeyframes();
+        var keyframes = propertyFrames[property];
+
+        console.log(keyframes);
+
+        this.$.con.innerHTML = '';
+        for (var i = 0; i < keyframes.length; i++) {
+          var dupNode = this.timedItem.target.cloneNode(true);
+          // To prevent id duplication.
+          dupNode.id = null;
+          this.$.con.appendChild(dupNode);
+          dupNode.style[keyframes[i].property] = keyframes[i].cssValue;
+        }
       },
     });
   </script>
