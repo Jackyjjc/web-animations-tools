@@ -23,12 +23,12 @@ limitations under the License.
         border: 1px solid black;
       }
     </style>
+    <div id="con"></div>
     <div id="container">
       {{timedItem.type ? 'Not an animation' : ''}}
       <template repeat="{{properties}}">
-        <div>
-          <input type="button" value="{{name}}"><span>: {{value}}</span>
-        </div>  
+        <button on-click="{{displayKeyFrames}}">{{name}}</button>
+        <span>: {{value}}</span>
       </template> 
     <div>
   </template>
@@ -60,6 +60,13 @@ limitations under the License.
         }
 
         this.properties = properties;
+      },
+      displayKeyFrames: function() {
+        
+        //copy the element then play the animation
+        var dupNode = this.timedItem.target.cloneNode(true);
+        dupNode.id = null;
+        this.$.con.appendChild(dupNode);
       },
     });
   </script>
