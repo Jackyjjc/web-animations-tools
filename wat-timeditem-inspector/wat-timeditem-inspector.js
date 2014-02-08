@@ -34,6 +34,15 @@ Polymer('wat-timeditem-inspector', {
   
   ready: function() {
     this.easing = this.timedItem.specified.easing;
+
+    // Change the value of the input element does not trigger
+    // the change event, therefore need to manually fire it.
+    this.addEventListener('select-target', function(e) {
+      this.showPropertyContainer();
+      this.$.animTarget.value = e.detail;
+      var e = new CustomEvent('change', null);
+      this.$.animTarget.dispatchEvent(e);
+    });
   },
 
   easingChanged: function() {
