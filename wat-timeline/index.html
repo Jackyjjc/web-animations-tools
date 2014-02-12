@@ -29,19 +29,25 @@ limitations under the License.
       margin: 5px;
       width: 100%;
     }
+    input {
+      display: block;
+      position: absolute;
+    }
   </style>
 </head>
 
 <body>
   <select></select>
-  <input id="test_button" type="button" value="+1">
+  <div style="margin-bottom: 200px;">
+    <input id="test_button" type="button" value="+1">
+  </div>
   <wat-timeline id="timeline"></wat-timeline>
   <script>
     var b = document.querySelector('#test_button');
     var sampleKeyframes = [
-      {transform: 'scale(1)', offset: 0},
-      {transform: 'scale(1.5)', offset: 0.5}, 
-      {transform: 'scale(1)', offset: 1}
+      {opacity: 0, backgroundColor: 'red', transform: 'scale(1)', left: '0px', top: '0px', offset: 0},
+      {opacity: 1, backgroundColor: 'blue', transform: 'scale(1.5)', left: '100px', top: '150px', offset: 0.5}, 
+      {opacity: 0, backgroundColor: 'green', transform: 'scale(1)', left: '200px', top: '0px', offset: 1}
     ];
     var sampleKeyframes1 = [
       {backgroundColor: 'red', offset: 0},
