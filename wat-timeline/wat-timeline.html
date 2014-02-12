@@ -19,6 +19,7 @@ limitations under the License.
 
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../internal/wat-button/wat-button.html">
+<link rel="import" href="../wat-effect-inspector/wat-effect-inspector.html">
 <link rel="import" href="wat-timeline-axis.html">
 <link rel="import" href="wat-timeline-scrubber.html">
 <link rel="import" href="wat-timeline-item.html">
@@ -58,6 +59,7 @@ limitations under the License.
   <wat-button id="back-button" title="back" on-click="{{popViewStack}}">
     <i class="fa fa-reply"></i>
   </wat-button>
+  <wat-effect-inspector timedItem="{{timedItem}}" localTime="{{player.currentTime}}"></wat-effect-inspector>
   <wat-timeline-scrubber player="{{player}}" pixelsPerSecond="{{pixelsPerSecond}}"
       height="{{$.itemContainer.clientHeight + $.axis.clientHeight}}">
   </wat-timeline-scrubber>

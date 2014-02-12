@@ -1,0 +1,167 @@
+<!--
+Copyright 2014 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+
+limitations under the License.
+-->
+<link rel="import" href="../../polymer/polymer.html">
+
+<polymer-element name="wat-effect-inspector" attributes="timedItem localTime">
+  <template>
+    <style>
+      :host {
+        position: relative; 
+      }
+    </style>
+    <iframe id="preview" width="100%;"></iframe>
+    <div id="container">
+      <div id="settings">
+      <label for="numFrames">#Frames</label>
+      <input id="numFrames" type="number" value="{{numFrames}}" min="0">
+      <input type="checkbox" checked="{{overlap}}"><span>Position Sensetive</span>
+      <input type="checkbox" checked="{{onionSkinning}}"><span>Onion Skinning</span>
+      </div>
+      <template repeat="{{properties}}">
+        <div>
+          <input type="checkbox" name="property" value="{{name}}" checked="{{checked}}"
+              on-change="{{displayKeyFrames}}">
+          <span>{{name}} : {{value}}</span>
+        </div>
+      </template>
+    </div>
+  </template>
+  <script>
+    Polymer('wat-effect-inspector', {
+      timedItem: null,
+      localTime: 0,
+      overlap: false,
+      onionSkinning: false,
+      numFrames: 20,
+      observe: {
+        'timedItem': 'update',
+        'localTime': 'update',
+        'numFrames': 'displayKeyFrames',
+        'overlap': 'displayKeyFrames',
+        'onionSkinning': 'displayKeyFrames',
+        'timedItem.effect._keyframeDictionaries': 'update',
+      },
+      update: function() {
+        if (!this.timedItem || 
+            !this.timedItem instanceof Animation || 
+            !this.timedItem.effectValueAtLocalTime) {
+          return;
+        }
+
+        // Remember the checked states of the inputs and restore them after polymer refresh the view.
+        var checked = {};
+        var checkedProperties = this.$.container.querySelectorAll('input[name = "property"]:checked');
+        for (var i = 0; i < checkedProperties.length; i++) {
+          checked[checkedProperties[i].value] = true;
+        }
+
+        // Refresh the list of properties.
+        var properties = [];
+        var effect;
+        try {
+          effect = this.timedItem.effectValueAtLocalTime(this.localTime);
+        } catch (e) {
+          // FIXME: Invalid keyframes will cause an exception to be thrown,
+          // catch it for now to prevent it coming up in the log.
+          return;
+        }
+        for (var prop in effect) {
+          if (typeof effect[prop] !== 'function') {
+            return;
+          }
+
+          properties.push({
+            name: prop,
+            value: effect[prop].call(),
+            checked: checked[prop] ? true : false,
+          });
+
+        }
+        this.properties = properties;
+        
+        this.displayKeyFrames();
+      },
+      displayKeyFrames: function() {
+        this.$.preview.contentDocument.body.innerHTML = '';
+        var checkedProperties = this.$.container.querySelectorAll('input[name = "property"]:checked');
+        if (!checkedProperties || checkedProperties.length <= 0) {
+          return;
+        }
+
+        // Duplicate the node and put it into iframe.
+        var node = this.getUnAnimatedNode();
+        var root = document.createElement('div');    
+
+        var timespan = this.timedItem.endTime - this.timedItem.startTime;
+
+        for (var i = 0; i <= this.numFrames; i++) {
+          var dupNode = node.cloneNode(true);
+          
+          // Avoid id collision.
+          dupNode.id = null;
+          
+          if (this.overlap) {
+            dupNode.style.position = 'absolute';
+          }
+
+          var time = timespan * (i / this.numFrames);
+          var effect;
+          try {
+            effect = this.timedItem.effectValueAtLocalTime(time);
+          } catch (e) {
+            // FIXME: Invalid keyframes will cause an exception to be thrown,
+            // catch it for now to prevent it coming up in the log.
+            return;
+          }
+          for (var j = 0; j < checkedProperties.length; j++) {
+            var prop = checkedProperties[j].value;
+            var value = effect[prop].call();
+
+            dupNode.style[prop] = value;
+            // FIXME: Unprefix transform animation is not working.
+            if (prop === 'transform') {
+              dupNode.style.webkitTransform = value;
+            }
+          }
+
+          if (this.onionSkinning) {
+            var opacity;
+            if (time < this.localTime) {
+              opacity = time / this.localTime + 0.2;
+            } else {
+              opacity = (timespan - time) / (timespan - this.localTime) + 0.2;
+            }
+            dupNode.style.opacity = Math.min(opacity, 1);
+          }
+          root.appendChild(dupNode);
+        }
+
+        this.$.preview.contentDocument.body.appendChild(root);
+      },
+      getUnAnimatedNode: function() {
+        var savedCurrentTime = this.timedItem.player.currentTime;
+        this.timedItem.player.paused = true;
+        this.timedItem.player.currentTime = -1;
+        var originalNode = this.timedItem.target.cloneNode(true);
+        originalNode.style.cssText = getComputedStyle(this.timedItem.target).cssText;
+        this.timedItem.player.currentTime = savedCurrentTime;
+
+        return originalNode;
+      },
+    });
+  </script>
+</polymer-element>
