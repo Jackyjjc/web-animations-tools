@@ -16,18 +16,25 @@ limitations under the License.
 -->
 <link rel="import" href="../../polymer/polymer.html">
 
-<polymer-element name="wat-effect-inspector" attributes="timedItem localTime">
+<polymer-element name="wat-effect-inspector" attributes="timedItem">
   <template>
     <style>
       :host {
-        position: relative; 
+        position: relative;
+        overflow: scroll; 
+      }
+      #preview {
+        display: inline;
+        white-space: nowrap;
+        word-spacing: 0;
       }
     </style>
-    <iframe id="preview" width="100%;"></iframe>
+    <div id="preview"></div>
     <div id="container">
       <div id="settings">
       <label for="numFrames">#Frames</label>
       <input id="numFrames" type="number" value="{{numFrames}}" min="0">
+      <input type="checkbox" checked="{{opacityOff}}"><span>Turn off opacity</span>
       <input type="checkbox" checked="{{overlap}}"><span>Position Sensetive</span>
       <input type="checkbox" checked="{{onionSkinning}}"><span>Onion Skinning</span>
       </div>
@@ -43,15 +50,16 @@ limitations under the License.
   <script>
     Polymer('wat-effect-inspector', {
       timedItem: null,
-      localTime: 0,
       overlap: false,
       onionSkinning: false,
+      opacityOff: false,
       numFrames: 20,
       observe: {
         'timedItem': 'update',
-        'localTime': 'update',
+        'timedItem.player.currentTime': 'update',
         'numFrames': 'displayKeyFrames',
         'overlap': 'displayKeyFrames',
+        'opacityOff': 'displayKeyFrames',
         'onionSkinning': 'displayKeyFrames',
         'timedItem.effect._keyframeDictionaries': 'update',
       },
@@ -70,10 +78,11 @@ limitations under the License.
         }
 
         // Refresh the list of properties.
+        var localTime = this.timedItem.player ? this.timedItem.player.currentTime : 0;
         var properties = [];
         var effect;
         try {
-          effect = this.timedItem.effectValueAtLocalTime(this.localTime);
+          effect = this.timedItem.effectValueAtLocalTime(localTime);
         } catch (e) {
           // FIXME: Invalid keyframes will cause an exception to be thrown,
           // catch it for now to prevent it coming up in the log.
@@ -96,7 +105,7 @@ limitations under the License.
         this.displayKeyFrames();
       },
       displayKeyFrames: function() {
-        this.$.preview.contentDocument.body.innerHTML = '';
+        this.$.preview.innerHTML = '';
         var checkedProperties = this.$.container.querySelectorAll('input[name = "property"]:checked');
         if (!checkedProperties || checkedProperties.length <= 0) {
           return;
@@ -104,7 +113,6 @@ limitations under the License.
 
         // Duplicate the node and put it into iframe.
         var node = this.getUnAnimatedNode();
-        var root = document.createElement('div');    
 
         var timespan = this.timedItem.endTime - this.timedItem.startTime;
 
@@ -116,6 +124,10 @@ limitations under the License.
           
           if (this.overlap) {
             dupNode.style.position = 'absolute';
+          } else {
+            console.log(dupNode.getBoundingClientRect().width);
+            dupNode.style.position = 'static';
+            dupNode.style.display = 'inline-block';
           }
 
           var time = timespan * (i / this.numFrames);
@@ -138,19 +150,22 @@ limitations under the License.
             }
           }
 
+          var localTime = this.timedItem.player ? this.timedItem.player.currentTime : 0;
+          if (this.opacityOff) {
+            dupNode.style.opacity = 1;
+          }
+
           if (this.onionSkinning) {
             var opacity;
-            if (time < this.localTime) {
-              opacity = time / this.localTime + 0.2;
+            if (time < localTime) {
+              opacity = time / localTime + 0.2;
             } else {
-              opacity = (timespan - time) / (timespan - this.localTime) + 0.2;
+              opacity = (timespan - time) / (timespan - localTime) + 0.2;
             }
             dupNode.style.opacity = Math.min(opacity, 1);
           }
-          root.appendChild(dupNode);
+          this.$.preview.appendChild(dupNode);
         }
-
-        this.$.preview.contentDocument.body.appendChild(root);
       },
       getUnAnimatedNode: function() {
         var savedCurrentTime = this.timedItem.player.currentTime;
