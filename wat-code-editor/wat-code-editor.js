@@ -184,18 +184,23 @@ Polymer('wat-code-editor', {
       script.textContent = this.previewJavascript;
       d.body.appendChild(script);
       
-      if (d.timeline.getCurrentPlayers().length > 0) {
-        var player = d.timeline.getCurrentPlayers()[0];
-        this.$['player-controls'].player = player;
-        this.timedItem = player.source;
-        window.Animation = w.Animation;
-        window.ParGroup = w.ParGroup;
-        window.SeqGroup = w.SeqGroup;
-        window.KeyframeEffect = w.KeyframeEffect;
-        window.MotionPathEffect = w.MotionPathEffect;
-      } else {
-        this.fire('request-toast', 'Could not find any active players.');
+      if (d.timeline.getCurrentPlayers().length <= 0) {
+        if (this.timedItem) {
+          d.timeline.play(this.timedItem).paused = true;
+        } else {
+          this.fire('request-toast', 'Could not find any active players.');
+          return;  
+        }
       }
+
+      var player = d.timeline.getCurrentPlayers()[0];
+      this.$['player-controls'].player = player;
+      this.timedItem = player.source;
+      window.Animation = w.Animation;
+      window.ParGroup = w.ParGroup;
+      window.SeqGroup = w.SeqGroup;
+      window.KeyframeEffect = w.KeyframeEffect;
+      window.MotionPathEffect = w.MotionPathEffect;
     }.bind(this);
   },
 
