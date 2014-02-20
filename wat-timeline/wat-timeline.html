@@ -46,8 +46,8 @@ limitations under the License.
     }
     #itemContainer {
       display: inline;
-      overflow-x: hidden;
       overflow-y: auto;
+      overflow-x: hidden;
     }
     #back-button {
       display: {{viewStack.length > 0 ? 'flex' : 'none'}};
@@ -70,7 +70,7 @@ limitations under the License.
       </wat-timeline-scrubber>
       <wat-timeline-axis id="axis" pixelsPerSecond="{{pixelsPerSecond}}"></wat-timeline-axis>
       <div id="itemContainer" on-scroll="{{syncScroll}}"
-          style="width: {{pixelsPerSecond * timespan}}px"></div>
+          style="width: {{pixelsPerSecond * timespan + 20}}px"></div>
     </div>
   </div>
   </template>
